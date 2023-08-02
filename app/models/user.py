@@ -1,4 +1,6 @@
-from sqlalchemy.orm import Mapped, validates
+from typing import List
+
+from sqlalchemy.orm import Mapped, validates, relationship
 from sqlalchemy.orm import mapped_column
 
 from app.models.base import Base
@@ -12,6 +14,9 @@ class User(Base):
     hashed_password: Mapped[str] = mapped_column(nullable=False)
     is_active: Mapped[bool] = mapped_column(default=True)
     is_superuser: Mapped[bool] = mapped_column(default=False)
+
+    hotel_ratings: Mapped[List["HotelRating"]] = relationship(back_populates="user")
+    booking: Mapped[List["HotelUserBooking"]] = relationship(back_populates="user_booking")
 
     @validates("email")
     def validate_email(self, key, address: str):
