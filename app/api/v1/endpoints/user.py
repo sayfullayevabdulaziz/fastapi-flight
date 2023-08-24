@@ -47,12 +47,12 @@ async def get_user_list_order_by_created_at(
 
 @router.get("/{user_id}")
 async def get_user_by_id(
-        user: User = Depends(user_deps.is_valid_user),
+        user: IUserReadSchema = Depends(user_deps.is_valid_user),
         current_user: User = Depends(
             deps.get_current_user()),
 
 ) -> IUserReadSchema:
-    return IUserReadSchema.model_validate(user)
+    return user
 
 
 @router.get("")

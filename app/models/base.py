@@ -4,7 +4,6 @@ import datetime
 import re
 
 from sqlalchemy import func
-from sqlalchemy.ext.asyncio import AsyncAttrs
 from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy.orm import DeclarativeBase
 from sqlalchemy.orm import Mapped
@@ -16,7 +15,7 @@ def camel_to_snake_case(name: str) -> str:
     return pattern.sub('_', name).lower()
 
 
-class Base(AsyncAttrs, DeclarativeBase):
+class Base(DeclarativeBase):
     id: Mapped[int] = mapped_column(primary_key=True, index=True)
 
     created_at: Mapped[datetime.datetime] = mapped_column(server_default=func.now())

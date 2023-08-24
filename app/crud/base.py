@@ -1,11 +1,11 @@
 from __future__ import annotations
 
-from typing import Any, Generic, TypeVar
+from typing import Any, Generic, TypeVar, Optional
 
 from fastapi import HTTPException
 from fastapi.encoders import jsonable_encoder
 from pydantic import BaseModel
-from sqlalchemy import exc
+from sqlalchemy import exc, and_
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -22,7 +22,7 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         """
         CRUD object with default methods to Create, Read, Update, Delete (CRUD).
         **Parameters**
-        * `model`: A SQLModel model class
+        * `model`: A BaseModel model (sqlalchemy) class
         * `schema`: A Pydantic model (schema) class
         """
         self.model = model
@@ -33,6 +33,19 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         query = select(self.model).where(self.model.id == id)
         response = await db_session.execute(query)
         return response.scalar_one_or_none()
+
+    async def get_list(self, db_session: AsyncSession, order_by: str = 'id', desc: bool = False, where: dict | None = {}
+                ):
+        columns = self.model.__table__.columns
+
+        # create query
+        query = select(self.model).where(and_(k == v for k, v in where.items())).order_by(
+            columns[order_by].desc() if desc else columns[order_by].asc())
+        # execute query
+        response = await db_session.execute(query)
+        # return response
+        return response.scalars().all()
+
 
     # async def get_by_ids(
     #         self,
@@ -110,6 +123,7 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         skip: int = 0,
         limit: int = 100,
         order_by: str | None = None,
+        where: dict | None = {},
         order: IOrderEnum | None = IOrderEnum.ascendent,
         db_session: AsyncSession,
     ) -> list[ModelType]:
@@ -143,7 +157,7 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
             created_by_id: int | str | None = None,
             db_session: AsyncSession
     ) -> ModelType:
-        db_obj = self.model.from_orm(obj_in)  # type: ignore
+        db_obj = self.model(**obj_in.model_dump())
 
         if created_by_id:
             db_obj.created_by_id = created_by_id

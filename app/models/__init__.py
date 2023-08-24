@@ -9,3 +9,4 @@ from .hotel import HotelUserBooking
 from .hotel import AvailableRoom
 from .hotel import LinkFreebieHotel
 from .hotel import LinkAmenityHotel
+from .debit_card import DebitCard

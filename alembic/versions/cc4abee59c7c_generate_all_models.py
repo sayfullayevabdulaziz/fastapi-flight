@@ -1,8 +1,8 @@
-"""Hotel Model
+"""Generate all models
 
-Revision ID: e1f0fe17d70d
-Revises: 6f5e74238f3b
-Create Date: 2023-08-01 17:04:38.802720
+Revision ID: cc4abee59c7c
+Revises: 
+Create Date: 2023-08-19 22:33:02.767367
 
 """
 from alembic import op
@@ -10,8 +10,8 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = 'e1f0fe17d70d'
-down_revision = '6f5e74238f3b'
+revision = 'cc4abee59c7c'
+down_revision = None
 branch_labels = None
 depends_on = None
 
@@ -53,13 +53,29 @@ def upgrade() -> None:
     sa.Column('filename', sa.String(), nullable=False),
     sa.Column('path', sa.String(), nullable=True),
     sa.Column('size', sa.Integer(), nullable=True),
-    sa.Column('file_format', sa.Integer(), nullable=False),
+    sa.Column('file_format', sa.String(), nullable=False),
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('created_at', sa.DateTime(), server_default=sa.text('now()'), nullable=False),
     sa.Column('updated_at', sa.DateTime(), server_default=sa.text('now()'), nullable=False),
     sa.PrimaryKeyConstraint('id')
     )
     op.create_index(op.f('ix_media_id'), 'media', ['id'], unique=False)
+    op.create_table('user',
+    sa.Column('first_name', sa.String(), nullable=False),
+    sa.Column('last_name', sa.String(), nullable=False),
+    sa.Column('email', sa.String(), nullable=False),
+    sa.Column('phone', sa.String(), nullable=False),
+    sa.Column('hashed_password', sa.String(), nullable=False),
+    sa.Column('is_active', sa.Boolean(), nullable=False),
+    sa.Column('is_superuser', sa.Boolean(), nullable=False),
+    sa.Column('id', sa.Integer(), nullable=False),
+    sa.Column('created_at', sa.DateTime(), server_default=sa.text('now()'), nullable=False),
+    sa.Column('updated_at', sa.DateTime(), server_default=sa.text('now()'), nullable=False),
+    sa.PrimaryKeyConstraint('id')
+    )
+    op.create_index(op.f('ix_user_email'), 'user', ['email'], unique=True)
+    op.create_index(op.f('ix_user_first_name'), 'user', ['first_name'], unique=False)
+    op.create_index(op.f('ix_user_id'), 'user', ['id'], unique=False)
     op.create_table('available_room',
     sa.Column('hotel_id', sa.Integer(), nullable=False),
     sa.Column('name', sa.String(), nullable=False),
@@ -75,82 +91,76 @@ def upgrade() -> None:
     op.create_index(op.f('ix_available_room_id'), 'available_room', ['id'], unique=False)
     op.create_index(op.f('ix_available_room_name'), 'available_room', ['name'], unique=False)
     op.create_table('hotel_media',
+    sa.Column('id', sa.Integer(), nullable=True),
     sa.Column('hotel_id', sa.Integer(), nullable=False),
     sa.Column('media_id', sa.Integer(), nullable=False),
-    sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('created_at', sa.DateTime(), server_default=sa.text('now()'), nullable=False),
     sa.Column('updated_at', sa.DateTime(), server_default=sa.text('now()'), nullable=False),
     sa.ForeignKeyConstraint(['hotel_id'], ['hotel.id'], ),
     sa.ForeignKeyConstraint(['media_id'], ['media.id'], ),
-    sa.PrimaryKeyConstraint('hotel_id', 'media_id', 'id')
+    sa.PrimaryKeyConstraint('hotel_id', 'media_id')
     )
-    op.create_index(op.f('ix_hotel_media_id'), 'hotel_media', ['id'], unique=False)
     op.create_table('hotel_rating',
+    sa.Column('id', sa.Integer(), nullable=True),
     sa.Column('hotel_id', sa.Integer(), nullable=False),
     sa.Column('user_id', sa.Integer(), nullable=False),
     sa.Column('comment', sa.String(), nullable=False),
     sa.Column('rating', sa.Integer(), nullable=False),
-    sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('created_at', sa.DateTime(), server_default=sa.text('now()'), nullable=False),
     sa.Column('updated_at', sa.DateTime(), server_default=sa.text('now()'), nullable=False),
     sa.ForeignKeyConstraint(['hotel_id'], ['hotel.id'], ),
     sa.ForeignKeyConstraint(['user_id'], ['user.id'], ),
-    sa.PrimaryKeyConstraint('hotel_id', 'user_id', 'id')
+    sa.PrimaryKeyConstraint('hotel_id', 'user_id')
     )
-    op.create_index(op.f('ix_hotel_rating_id'), 'hotel_rating', ['id'], unique=False)
     op.create_table('link_amenity_hotel',
+    sa.Column('id', sa.Integer(), nullable=True),
     sa.Column('hotel_id', sa.Integer(), nullable=False),
     sa.Column('amenity_id', sa.Integer(), nullable=False),
-    sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('created_at', sa.DateTime(), server_default=sa.text('now()'), nullable=False),
     sa.Column('updated_at', sa.DateTime(), server_default=sa.text('now()'), nullable=False),
     sa.ForeignKeyConstraint(['amenity_id'], ['amenity.id'], ),
     sa.ForeignKeyConstraint(['hotel_id'], ['hotel.id'], ),
-    sa.PrimaryKeyConstraint('hotel_id', 'amenity_id', 'id')
+    sa.PrimaryKeyConstraint('hotel_id', 'amenity_id')
     )
-    op.create_index(op.f('ix_link_amenity_hotel_id'), 'link_amenity_hotel', ['id'], unique=False)
     op.create_table('link_freebie_hotel',
+    sa.Column('id', sa.Integer(), nullable=True),
     sa.Column('hotel_id', sa.Integer(), nullable=False),
     sa.Column('freebie_id', sa.Integer(), nullable=False),
-    sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('created_at', sa.DateTime(), server_default=sa.text('now()'), nullable=False),
     sa.Column('updated_at', sa.DateTime(), server_default=sa.text('now()'), nullable=False),
     sa.ForeignKeyConstraint(['freebie_id'], ['freebie.id'], ),
     sa.ForeignKeyConstraint(['hotel_id'], ['hotel.id'], ),
-    sa.PrimaryKeyConstraint('hotel_id', 'freebie_id', 'id')
+    sa.PrimaryKeyConstraint('hotel_id', 'freebie_id')
     )
-    op.create_index(op.f('ix_link_freebie_hotel_id'), 'link_freebie_hotel', ['id'], unique=False)
     op.create_table('hotel_user_booking',
+    sa.Column('id', sa.Integer(), nullable=True),
     sa.Column('available_room_id', sa.Integer(), nullable=False),
     sa.Column('user_id', sa.Integer(), nullable=False),
     sa.Column('started_at', sa.DateTime(), nullable=False),
     sa.Column('stopped_at', sa.DateTime(), nullable=False),
-    sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('created_at', sa.DateTime(), server_default=sa.text('now()'), nullable=False),
     sa.Column('updated_at', sa.DateTime(), server_default=sa.text('now()'), nullable=False),
     sa.ForeignKeyConstraint(['available_room_id'], ['available_room.id'], ),
     sa.ForeignKeyConstraint(['user_id'], ['user.id'], ),
-    sa.PrimaryKeyConstraint('user_id', 'id')
+    sa.PrimaryKeyConstraint('user_id')
     )
-    op.create_index(op.f('ix_hotel_user_booking_id'), 'hotel_user_booking', ['id'], unique=False)
     # ### end Alembic commands ###
 
 
 def downgrade() -> None:
     # ### commands auto generated by Alembic - please adjust! ###
-    op.drop_index(op.f('ix_hotel_user_booking_id'), table_name='hotel_user_booking')
     op.drop_table('hotel_user_booking')
-    op.drop_index(op.f('ix_link_freebie_hotel_id'), table_name='link_freebie_hotel')
     op.drop_table('link_freebie_hotel')
-    op.drop_index(op.f('ix_link_amenity_hotel_id'), table_name='link_amenity_hotel')
     op.drop_table('link_amenity_hotel')
-    op.drop_index(op.f('ix_hotel_rating_id'), table_name='hotel_rating')
     op.drop_table('hotel_rating')
-    op.drop_index(op.f('ix_hotel_media_id'), table_name='hotel_media')
     op.drop_table('hotel_media')
     op.drop_index(op.f('ix_available_room_name'), table_name='available_room')
     op.drop_index(op.f('ix_available_room_id'), table_name='available_room')
     op.drop_table('available_room')
+    op.drop_index(op.f('ix_user_id'), table_name='user')
+    op.drop_index(op.f('ix_user_first_name'), table_name='user')
+    op.drop_index(op.f('ix_user_email'), table_name='user')
+    op.drop_table('user')
     op.drop_index(op.f('ix_media_id'), table_name='media')
     op.drop_table('media')
     op.drop_index(op.f('ix_hotel_name'), table_name='hotel')

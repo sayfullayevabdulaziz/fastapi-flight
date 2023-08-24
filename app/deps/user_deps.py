@@ -1,7 +1,4 @@
-from typing import Generic, TypeVar, Any
-
 from fastapi import HTTPException, Path, status, Depends
-from pydantic import BaseModel
 from sqlalchemy.ext.asyncio import AsyncSession
 from typing_extensions import Annotated
 
