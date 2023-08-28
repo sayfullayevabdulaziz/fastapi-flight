@@ -7,7 +7,9 @@ from app.api.v1.endpoints import (
     amenity,
     freebie,
     available_room,
-    debit_card
+    debit_card,
+    hotel_booking,
+    hotel_rating
 )
 
 api_router = APIRouter()
@@ -19,3 +21,5 @@ api_router.include_router(amenity.router, prefix="/amenity", tags=["Amenities"])
 api_router.include_router(freebie.router, prefix="/freebie", tags=["Freebies"])
 api_router.include_router(available_room.router, prefix="/available-room", tags=["Available Rooms"])
 api_router.include_router(debit_card.router, prefix="/debit-card", tags=["Debit Cards"])
+api_router.include_router(hotel_booking.router, prefix="/booking", tags=["Hotel Booking"])
+api_router.include_router(hotel_rating.router, prefix="/hotel-rating", tags=["Hotel Rating"])

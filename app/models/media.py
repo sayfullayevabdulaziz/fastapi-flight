@@ -10,4 +10,4 @@ class Media(Base):
     size: Mapped[int] = mapped_column(nullable=True)
     file_format: Mapped[str] = mapped_column(nullable=False)
 
-    hotels: Mapped["Hotel"] = relationship(back_populates="images", secondary="hotel_media", lazy="joined")
+    hotels: Mapped["Hotel"] = relationship(back_populates="images", secondary="link_hotel_media", lazy="joined")

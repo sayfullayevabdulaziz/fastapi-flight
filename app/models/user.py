@@ -15,8 +15,9 @@ class User(Base):
     is_active: Mapped[bool] = mapped_column(default=True)
     is_superuser: Mapped[bool] = mapped_column(default=False)
 
-    # credit_cards: Mapped[List["DebitCard"]] = relationship(lazy="selectin")
-    # booking: Mapped[List["HotelUserBooking"]] = relationship()
+    credit_cards: Mapped[List["DebitCard"]] = relationship(backref='user_cards')
+    hotel_booking: Mapped[List["AvailableRoom"]] = relationship(secondary='hotel_user_booking',
+                                                                back_populates='user_room_booking')
 
     @validates("email")
     def validate_email(self, key, address: str):

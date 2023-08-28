@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Any, Generic, TypeVar, Optional
+from typing import Any, Generic, TypeVar
 
 from fastapi import HTTPException
 from fastapi.encoders import jsonable_encoder
@@ -34,7 +34,11 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         response = await db_session.execute(query)
         return response.scalar_one_or_none()
 
-    async def get_list(self, db_session: AsyncSession, order_by: str = 'id', desc: bool = False, where: dict | None = {}
+    async def get_list(self,
+                       db_session: AsyncSession,
+                       order_by: str = 'id',
+                       desc: bool = False,
+                       where: dict | None = {}
                 ):
         columns = self.model.__table__.columns
 
@@ -116,14 +120,13 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
     #             query = select(self.model).order_by(columns[order_by].desc())
     #
     #     return await paginate(db_session, query, params)
-    #
+
     async def get_multi_ordered(
         self,
         *,
         skip: int = 0,
         limit: int = 100,
         order_by: str | None = None,
-        where: dict | None = {},
         order: IOrderEnum | None = IOrderEnum.ascendent,
         db_session: AsyncSession,
     ) -> list[ModelType]:

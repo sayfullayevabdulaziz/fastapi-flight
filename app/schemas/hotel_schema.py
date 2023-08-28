@@ -1,12 +1,11 @@
 from __future__ import annotations
 
 import json
-from typing import Any
+from typing import List
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 from pydantic_partial import PartialModelMixin
 
-from app.schemas.amenity_schema import IAmenityReadSchema
 from app.schemas.available_room_schema import AAvailableRoomReadSchema
 from app.schemas.media_schema import IMediaReadSchema
 
@@ -22,8 +21,6 @@ class IHotelBaseSchema(BaseModel):
 
 
 class IHotelCreateSchema(IHotelBaseSchema):
-    amenities: list[int] = Field(exclude=True)
-    freebies: list[int] = Field(exclude=True)
 
     @model_validator(mode="before")
     @classmethod
@@ -43,6 +40,7 @@ class IHotelReadSchema(IHotelBaseSchema):
     id: int
     images: list[IMediaReadSchema]
     sum_rating: float
-    amenities: list[IAmenityReadSchema]
-    available_rooms: list[AAvailableRoomReadSchema]
+    starting_from: float
+    available_rooms: List[AAvailableRoomReadSchema]
+
     model_config = ConfigDict(from_attributes=True)

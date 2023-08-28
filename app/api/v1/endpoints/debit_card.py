@@ -24,12 +24,12 @@ async def read_debit_list(
         ),
         db_session: AsyncSession = Depends(deps.get_db),
 ) -> list[ADebitCardReadSchema]:
-    debit_cards = await crud.amenity.get_multi_ordered(order_by="id", db_session=db_session)
+    debit_cards = await crud.debit_card.get_multi_ordered(order_by="id", db_session=db_session)
     return [ADebitCardReadSchema.model_validate(debit_card) for debit_card in debit_cards]
 
 
 @router.get("/{user_id}/list")
-async def read_available_room_list(
+async def read_debit_cards_list(
         user_id: int,
         order_by: str | None = Query(default='created_at'),
         desc: bool | None = Query(default=True),

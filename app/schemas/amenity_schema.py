@@ -1,8 +1,10 @@
+from __future__ import annotations
 from pydantic import BaseModel, ConfigDict
 
 
 class BaseAmenitySchema(BaseModel):
     name: str
+    logo_url: str | None = None
 
 
 # =============== Admin Part =======================

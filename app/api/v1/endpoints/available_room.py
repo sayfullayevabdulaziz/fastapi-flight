@@ -48,7 +48,7 @@ async def get_available_by_id(
 
 
 @router.post("", status_code=status.HTTP_201_CREATED)
-async def create_freebie(
+async def create_available_room(
         new_available: AAvailableRoomCreateSchema,
         current_user: User = Depends(
             deps.get_current_user()
@@ -59,13 +59,13 @@ async def create_freebie(
     Creates a new available_room
     """
 
-    available_room = await crud.available_room.create(obj_in=new_available, db_session=db_session)
+    available_room = await crud.available_room.create_with_amenity_freebie(obj_in=new_available, db_session=db_session)
 
     return available_room
 
 
 @router.put("/{available_room_id}", status_code=status.HTTP_200_OK)
-async def update_freebie(
+async def update_available_room(
         payload: AAvailableRoomUpdatePartialSchema,
         available_room_id: int = Depends(available_deps.is_exist_available),
         current_user: User = Depends(

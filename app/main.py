@@ -2,6 +2,7 @@ import time
 
 from contextlib import asynccontextmanager
 from fastapi import FastAPI, Request
+from fastapi_async_sqlalchemy import SQLAlchemyMiddleware
 from starlette.middleware.cors import CORSMiddleware
 
 from app.api.deps import get_redis_client
@@ -47,6 +48,13 @@ if settings.BACKEND_CORS_ORIGINS:
         allow_headers=["*"],
     )
 
+app.add_middleware(
+    SQLAlchemyMiddleware,
+    db_url=settings.ASYNC_DATABASE_URI,
+    engine_args={
+        "echo": False,
+    },
+)
 
 @app.get("/")
 async def root():

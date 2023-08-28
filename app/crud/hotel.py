@@ -1,45 +1,20 @@
 from __future__ import annotations
+
 import uuid
 from io import BytesIO
+
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app import crud
 from app.crud.base import CRUDBase
-from app.models.hotel import Hotel, Amenity, Freebie
+from app.models.hotel import Hotel
 from app.schemas import media_schema
 from app.schemas.hotel_schema import IHotelCreateSchema, IHotelUpdatePartialSchema
-from app.utils.exceptions import IdNotFoundException
 from app.utils.minio_client import MinioClient
 from app.utils.modify_media import get_filename_and_extension
 
 
 class CRUDHotel(CRUDBase[Hotel, IHotelCreateSchema, IHotelUpdatePartialSchema]):
-
-    @staticmethod
-    async def add_amenities_to_hotel(hotel: Hotel, amenities: list, db_session):
-        for amenity_id in amenities:
-            amenity = await crud.amenity.get(id=amenity_id, db_session=db_session)
-
-            if not amenity:
-                raise IdNotFoundException(Amenity, id=amenity_id)
-
-            hotel.amenities.append(amenity)
-            db_session.add(hotel)
-            await db_session.commit()
-            await db_session.refresh(hotel)
-
-    @staticmethod
-    async def add_freebies_to_hotel(hotel: Hotel, freebies: list, db_session):
-        for freebie_id in freebies:
-            freebie = await crud.freebie.get(id=freebie_id, db_session=db_session)
-
-            if not freebie:
-                raise IdNotFoundException(Freebie, id=freebie_id)
-
-            hotel.freebies.append(freebie)
-            db_session.add(hotel)
-            await db_session.commit()
-            await db_session.refresh(hotel)
 
     @staticmethod
     async def add_media_files(hotel: Hotel, media_files: list, minio_client: MinioClient, db_session: AsyncSession):
@@ -77,10 +52,6 @@ class CRUDHotel(CRUDBase[Hotel, IHotelCreateSchema, IHotelUpdatePartialSchema]):
                                 db_session: AsyncSession) -> Hotel:
         hotel = await self.create(obj_in=obj_in, db_session=db_session)
 
-        # add amenities to hotel
-        await self.add_amenities_to_hotel(hotel, obj_in.amenities, db_session)
-        # add freebies to hotel
-        await self.add_freebies_to_hotel(hotel, obj_in.freebies, db_session)
         # add media files
         await self.add_media_files(hotel, media_files, minio_client, db_session)
 
