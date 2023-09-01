@@ -12,11 +12,13 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app import crud
 from app.api import deps
+from app.models import Hotel, AvailableRoom
 from app.models.user import User
 from app.schemas.hotel_booking_schema import (
     AHotelUserBookingReadSchema,
     AHotelUserBookingCreateSchema
 )
+from app.schemas.hotel_schema import IHotelReadSchema
 
 router = APIRouter()
 
@@ -37,10 +39,16 @@ async def create_hotel_booking(
 
 
 @router.get('/get-hotels')
-async def get_filtering_hotels(check_in: date, check_out: date):
-    get_rooms = await crud.hotel_user_booking.get_booking(check_in, check_out)
+async def get_filtering_hotels(check_in: date, check_out: date,
+                               db_session: AsyncSession = Depends(deps.get_db)
+) -> list[IHotelReadSchema]:
+    get_rooms = await crud.hotel_user_booking.get_booking(check_in=check_in, check_out=check_out)
 
-    for room in get_rooms:
-        print(room.price)
+    get_hotels = await crud.hotel.get_filtered_hotels(get_rooms, db_session)
+    print(get_hotels, 'A21312')
+    # print(get_rooms, 'a12321')
+    # for room in get_rooms:
+    #     print(room.hotel_room, room.id)
 
-    return {"message", 'OK'}
+    return [IHotelReadSchema.model_validate(hotel) for hotel in get_hotels]
+

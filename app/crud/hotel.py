@@ -3,11 +3,12 @@ from __future__ import annotations
 import uuid
 from io import BytesIO
 
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app import crud
 from app.crud.base import CRUDBase
-from app.models.hotel import Hotel
+from app.models.hotel import Hotel, AvailableRoom
 from app.schemas import media_schema
 from app.schemas.hotel_schema import IHotelCreateSchema, IHotelUpdatePartialSchema
 from app.utils.minio_client import MinioClient
@@ -56,6 +57,15 @@ class CRUDHotel(CRUDBase[Hotel, IHotelCreateSchema, IHotelUpdatePartialSchema]):
         await self.add_media_files(hotel, media_files, minio_client, db_session)
 
         return hotel
+
+    async def get_filtered_hotels(self, rooms: list, db_session: AsyncSession):
+        hotels = []
+        for room in rooms:
+            stmt = select(Hotel).join(AvailableRoom).where(AvailableRoom.id == room.id)
+            response = await db_session.execute(stmt)
+            # return response
+            hotels.append(response.scalar_one_or_none())
+        return hotels
 
 
 hotel = CRUDHotel(Hotel)

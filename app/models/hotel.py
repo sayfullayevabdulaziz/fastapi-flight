@@ -1,10 +1,11 @@
+import enum
 import uuid
 from datetime import datetime
-from typing import List
+from typing import List, Set
 
 from fastapi import HTTPException, status
 from sqlalchemy.ext.hybrid import hybrid_property
-from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy.dialects.postgresql import UUID, ENUM
 from sqlalchemy.orm import Mapped, validates
 from sqlalchemy.orm import mapped_column, relationship
 from sqlalchemy import ForeignKey, Table, Column, Date, CheckConstraint, and_, UniqueConstraint
@@ -33,6 +34,15 @@ link_hotel_media = Table(
 )
 
 
+class Destination(Base):
+    name: Mapped[str] = mapped_column()
+    description: Mapped[str] = mapped_column()
+    image_id: Mapped[uuid] = mapped_column(UUID)
+
+    image: Mapped["Media"] = relationship(backref="destination")
+    hotels: Mapped[List["Hotel"]] = relationship()
+
+
 class Hotel(Base):
     name: Mapped[str] = mapped_column(index=True, nullable=False)
     short_description: Mapped[str] = mapped_column(nullable=False)
@@ -41,6 +51,7 @@ class Hotel(Base):
     location: Mapped[str] = mapped_column(nullable=False)
     is_active: Mapped[bool] = mapped_column(default=True)
     is_recommend: Mapped[bool] = mapped_column(default=True)
+    destination_id: Mapped[int] = mapped_column(ForeignKey("destination.id", ondelete="SET NULL"), nullable=True)
 
     user_ratings: Mapped[List["HotelRating"]] = relationship(back_populates="hotel_ref", lazy="selectin")
     available_rooms: Mapped[List["AvailableRoom"]] = relationship(back_populates="hotel_room", lazy='selectin')
@@ -104,6 +115,11 @@ class HotelRating(Base):  # M2M
     )
 
 
+class BookingStatus(enum.Enum):
+    accepted = "ACCEPTED"
+    cancelled = "CANCELLED"
+
+
 class HotelUserBooking(Base):  # M2M
     id: Mapped[int] = mapped_column(primary_key=False, nullable=True)
     booking_id: Mapped[uuid] = mapped_column(UUID, default=uuid.uuid4, primary_key=True, unique=True)
@@ -112,6 +128,7 @@ class HotelUserBooking(Base):  # M2M
     user_id: Mapped[int] = mapped_column(ForeignKey("user.id"), primary_key=True)
     started_at: Mapped[datetime.date] = mapped_column(Date)
     stopped_at: Mapped[datetime.date] = mapped_column(Date)
+    booking_status: Mapped[BookingStatus] = mapped_column(ENUM(BookingStatus), default=BookingStatus.cancelled)
 
     @validates('started_at', 'stopped_at')
     def validate_dates(self, key, field):
@@ -138,7 +155,7 @@ class AvailableRoom(Base):
     bed: Mapped[int] = mapped_column()
     is_active: Mapped[bool] = mapped_column(default=True)
 
-    hotel_room: Mapped["Hotel"] = relationship(back_populates='available_rooms', lazy='joined')
+    hotel_room: Mapped[Set["Hotel"]] = relationship(back_populates='available_rooms', lazy='joined')
     freebies: Mapped[List["Freebie"]] = relationship(secondary=link_freebie_room, lazy="selectin")
     amenities: Mapped[List["Amenity"]] = relationship(secondary=link_amenity_room, lazy="selectin")
     user_room_booking: Mapped[List["User"]] = relationship(secondary='hotel_user_booking', lazy='selectin',

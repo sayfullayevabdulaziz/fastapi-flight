@@ -1,5 +1,6 @@
 from typing import List
-
+from datetime import date
+from sqlalchemy import Date
 from sqlalchemy.orm import Mapped, validates, relationship
 from sqlalchemy.orm import mapped_column
 
@@ -11,6 +12,8 @@ class User(Base):
     last_name: Mapped[str] = mapped_column()
     email: Mapped[str] = mapped_column(unique=True, index=True, nullable=False)
     phone: Mapped[str] = mapped_column()
+    address: Mapped[str] = mapped_column(nullable=True)
+    birthday: Mapped[date] = mapped_column(Date, nullable=True)
     hashed_password: Mapped[str] = mapped_column(nullable=False)
     is_active: Mapped[bool] = mapped_column(default=True)
     is_superuser: Mapped[bool] = mapped_column(default=False)

@@ -20,6 +20,21 @@ typing-extensions = ">=4"
 tz = ["python-dateutil"]
 
 [[package]]
+name = "alembic-postgresql-enum"
+version = "0.1.5"
+description = "Alembic autogenerate support for creation, alteration and deletion of enums"
+optional = false
+python-versions = ">=3.7,<4.0"
+files = [
+    {file = "alembic_postgresql_enum-0.1.5-py3-none-any.whl", hash = "sha256:31f3d3df2e466011965d17d3d66198d265b0ff97423f93a35042fe283b56c44c"},
+    {file = "alembic_postgresql_enum-0.1.5.tar.gz", hash = "sha256:55c85e87fbd5b9348ab8f58ae7eb24a579eca26e536b0da2e68261724eb50710"},
+]
+
+[package.dependencies]
+alembic = ">=1.7"
+SQLAlchemy = ">=1.4"
+
+[[package]]
 name = "amqp"
 version = "5.1.1"
 description = "Low-level AMQP client for Python (fork of amqplib)."
@@ -1458,4 +1473,4 @@ files = [
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.10"
-content-hash = "198287422d3f54e48aac7761a12f021b56a900ff1f0ee9a7aefd55bfc8a8a651"
+content-hash = "c178b0e1b9799d4d3b4c97e953f3ff22eb2ff78bc444219b7a30d6e4acd355a4"

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from datetime import date
 from pydantic import BaseModel, EmailStr, ConfigDict, Field, model_validator, StringConstraints
 from pydantic_partial import PartialModelMixin
 from typing_extensions import Annotated
@@ -32,7 +33,8 @@ class IUserCreateSchema(IUserBaseSchema):
 
 # All these fields are optional
 class IUserUpdateSchema(PartialModelMixin, IUserBaseSchema):
-    pass
+    address: str
+    birthday: date
 
 
 IUserUpdatePartialSchema = IUserUpdateSchema.model_as_partial()

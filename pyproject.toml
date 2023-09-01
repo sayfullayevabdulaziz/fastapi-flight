@@ -25,6 +25,7 @@ celery = "^5.3.1"
 flower = "^2.0.0"
 minio = "^7.1.15"
 fastapi-async-sqlalchemy = "^0.5.0"
+alembic-postgresql-enum = "^0.1.5"
 
 
 [build-system]
